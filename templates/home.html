@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Fitzy{% endblock %}
+
+{% block css %}
+<style>
+  
+    .feature-card {
+        background: rgba(255, 255, 255, 0.85); 
+        backdrop-filter: blur(10px); 
+        border: 2px solid #4a4ab0;
+        border-radius: 15px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        color: #333;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .feature-card:hover {
+        transform: translateX(12px); 
+        background: #4a4ab0; 
+        color: white !important;
+        box-shadow: 0 10px 20px rgba(74, 74, 176, 0.35);
+        border-color: #4a4ab0;
+    }
+
+    .feature-card:hover i {
+        color: white !important;
+    }
+
+    .feature-card:hover .arrow-icon {
+        opacity: 1 !important;
+        transform: translateX(8px);
+    }
+
+    .arrow-icon {
+        transition: all 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+{% load static %}
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<div class="d-flex align-items-center ps-5" style="min-height: 85vh;" id="below_nav">
+    <div style="width: 310px;"> 
+        
+        <div class="mb-3">
+            <button class="btn feature-card w-100 py-3 fw-bold d-flex justify-content-between align-items-center" 
+                onclick="window.location.href='{% url 'handle_calorie' %}'" name="calorie_btn"  id="calorie_btn">
+                <span class="fs-6 d-flex align-items-center">
+                    <i class="bi bi-fire me-3 text-danger fs-4"></i> Calories
+                </span>
+                <i class="bi bi-chevron-right arrow-icon opacity-50"></i>
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <button class="btn feature-card w-100 py-3 fw-bold d-flex justify-content-between align-items-center" 
+                onclick="window.location.href='{% url 'handle_protein' %}'" id="protein_btn">
+                <span class="fs-6 d-flex align-items-center">
+                    <i class="bi bi-cup-straw me-3 text-success fs-4"></i> Protein 
+                </span>
+                <i class="bi bi-chevron-right arrow-icon opacity-50"></i>
+            </button>
+        </div>
+
+        <div class="mb-3">
+            <button class="btn feature-card w-100 py-3 fw-bold d-flex justify-content-between align-items-center" 
+                onclick="window.location.href='{% url 'handle_bmi' %}'" id="bmi_btn">
+                <span class="fs-6 d-flex align-items-center">
+                    <i class="bi bi-heart-pulse-fill me-3 text-primary fs-4"></i> BMI 
+                </span>
+                <i class="bi bi-chevron-right arrow-icon opacity-50"></i>
+            </button>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

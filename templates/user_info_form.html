@@ -1,0 +1,152 @@
+{% extends "home.html" %}
+{% load static %}
+
+{% block css %}
+<style>
+  body {
+    background-color: #f8f9fa;
+  }
+
+
+  #user_info_form {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0px 8px 25px rgba(0, 0, 0, 0.1);
+    max-width: 500px; /* Thoda narrow kiya taaki clean lage */
+    margin: 100px auto 40px; /* Top margin 100px alert ke liye jagah chhodne ko */
+    border: none;
+  }
+
+ 
+  .logo {
+    max-width: 80px;
+    margin-bottom: 10px;
+  }
+
+ 
+  .form-title {
+    font-size: 1.4rem;
+    margin-bottom: 20px;
+    color: #333;
+  }
+
+  #navbar {
+    filter: blur(3px);
+  }
+
+
+  .form-floating > .form-control,
+  .form-floating > .form-select {
+    height: 50px;
+    line-height: 1;
+  }
+
+  .btn-success {
+    padding: 10px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    background-color: #28a745;
+    border: none;
+  }
+
+  .btn-success:hover {
+    background-color: #218838;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-11 col-md-8 col-lg-5">
+      
+      <form method="post" action="{% url 'user_info_form' %}" class="text-center" id="user_info_form">
+        {% csrf_token %}
+        
+        <img class="logo" src="{% static 'logo1.png' %}" alt="Fitzy Logo" />
+        <p class="form-title"><i><b>Kickstart Your Fitzy Journey</b></i></p>
+
+        <div class="row g-2">
+          <div class="col-12">
+            <div class="form-floating mb-2">
+              <select class="form-select" id="gender" name="gender" required>
+                <option value="" disabled selected>Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+              </select>
+              <label for="gender">Gender</label>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="form-floating mb-2">
+              <input type="number" class="form-control" id="age" name="age" placeholder="Age" min="1" required>
+              <label for="age">Age</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating mb-2">
+              <input type="number" class="form-control" id="weight" name="weight" placeholder="Weight (kg)" min="1" step="any" required>
+              <label for="weight">Weight (kg)</label>
+            </div>
+          </div>
+
+          <div class="col-6">
+            <div class="form-floating mb-2">
+              <input type="number" class="form-control" id="height_m" name="height_m" placeholder="Meters" min="0" step="any" required>
+              <label for="height_m">Height (M)</label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="form-floating mb-2">
+              <input type="number" class="form-control" id="height_cm" name="height_cm" placeholder="CM" min="0" step="any" required>
+              <label for="height_cm">Height (CM)</label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-floating mb-2">
+              <select class="form-select" id="activity_level" name="activity_level" required>
+                <option value="" disabled selected>Activity Level</option>
+                <option value="Sedentary">Sedentary</option>
+                <option value="Lightly Active">Lightly Active</option>
+                <option value="Moderately Active">Moderately Active</option>
+                <option value="Very Active">Very Active</option>
+                <option value="Super Active">Super Active</option>
+              </select>
+              <label for="activity_level">Activity Level</label>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="form-floating mb-3">
+              <select class="form-select" id="goal" name="goal" required>
+                <option value="" disabled selected>Your Goal</option>
+                <option value="Lose Weight">Lose Weight</option>
+                <option value="Maintain">Maintain</option>
+                <option value="Gain Weight">Gain Weight</option>
+              </select>
+              <label for="goal">Fitness Goal</label>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Save & Continue</button>
+      </form>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  
+  let logout_btn = document.getElementById('logout_btn');
+  if(logout_btn) logout_btn.disabled = true;
+
+  let update_btn = document.getElementById('Update_info_btn');
+  if(update_btn) update_btn.disabled = true;
+</script>
+{% endblock %}

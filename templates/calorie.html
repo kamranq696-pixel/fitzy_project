@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<style>
+    body { overflow-y: hidden; }
+
+    .calorie-page-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        min-height: 100vh;
+        padding-top: 8vh;
+        padding-bottom: 50px;
+    }
+
+    .cal-fixed-width {
+        width: 100%;
+        max-width: 650px; 
+    }
+
+    .cal-card-styled {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
+        text-align: center;
+        margin-bottom: 30px; 
+    }
+
+    .compact-calculator {
+        padding: 20px 40px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .form-logo-main {
+        height: 35px !important;
+        width: auto !important;
+        margin-bottom: 10px;
+    }
+
+    .food-table-container {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid #eee;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+        scrollbar-width: thin;
+        max-height: 160px;
+    }
+
+    .food-table-header {
+        background: #2c3e50;
+        color: #fff;
+        padding: 15px;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.7rem; 
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        margin: 0 !important;
+    }
+
+    .table-scroll-area::-webkit-scrollbar { width: 6px; }
+    .table-scroll-area::-webkit-scrollbar-track { background: transparent; }
+    .table-scroll-area::-webkit-scrollbar-thumb { background: #ced4da; border-radius: 10px; }
+
+    .btn-gradient-success {
+        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        border: none;
+        color: white;
+        font-weight: 600;
+        border-radius: 12px;
+        padding: 12px 25px;
+        transition: opacity 0.2s;
+    }
+
+    .food-item-row {
+        border-bottom: 1px solid #f8f9fa;
+        padding: 10px 5px; 
+    }
+
+    #dishname {
+        margin-right: 8px;
+        border-radius: 8px;
+    }
+
+    #ccard {
+        background: #f0fff4;
+        border-radius: 15px;
+        margin-top: 5px;
+    }
+
+    .col-food { width: 25%; }
+    .col-cal { width: 20%; }
+    .col-serving { width: 25%; }
+    .col-qty { width: 15%; }
+    .col-action { width: 15%; }
+
+    @media (max-width: 680px) {
+        .cal-fixed-width { width: 92%; }
+        .food-table-header { font-size: 0.6rem; }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="calorie-page-wrapper">
+    
+    {% if not user.is_authenticated %}
+    <div class="cal-card-styled cal-fixed-width compact-calculator">
+        <form onsubmit="calcalorie(event)" id="calorie_form">
+            <img class="form-logo-main" src="{% static 'logo1.png' %}" alt="Logo" />
+            <h3 class="fw-bold mb-3" style="color: #2c3e50;">Calorie Calculator</h3>
+            
+            <div class="row g-2"> 
+                <div class="col-md-6 text-start">
+                    <label class="small fw-bold">Weight (kg)</label>
+                    <input type="number" class="form-control py-2" id="weight" placeholder="e.g. 70" min="0" required>
+                </div>
+                <div class="col-md-6 text-start">
+                    <label class="small fw-bold">Activity</label>
+                    <select class="form-select py-2" id="activity_level" required>
+                        <option value="Sedentary">Sedentary</option>
+                        <option value="Lightly Active">Lightly Active</option>
+                        <option value="Moderately Active">Moderately Active</option>
+                        <option value="Very Active">Very Active</option>
+                        <option value="Super Active">Super Active</option>
+                    </select>
+                </div>
+                <div class="col-md-6 text-start">
+                    <label class="small fw-bold">Goal</label>
+                     <select class="form-select" id="goal" name="goal" required>
+                        <option value="Lose Weight" selected>Lose Weight</option>
+                        <option value="Maintain" >Maintain</option>
+                       <option value="Gain Weight">Gain Weight</option>
+                     </select>
+                </div>
+                <div class="col-md-6 text-start">
+                    <label class="small fw-bold">Gender</label>
+                    <select class="form-select" name="gender" id="gender" required>
+                        <option value="Male" selected>Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+                <div class="col-md-6 text-start">
+                    <label class="small fw-bold">Height (cm)</label>
+                    <input type="number" class="form-control py-2" id="height_cm" placeholder="e.g. 175" min="0" required>
+                </div>
+                <div class="col-md-6 text-start">
+                    <label class="small fw-bold">Age</label>
+                    <input type="number" class="form-control py-2" id="age" placeholder="e.g. 25" min="0" required>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-gradient-success w-100 mt-3">Calculate</button>
+            <button type="button" class="btn btn-link text-muted small mt-1" onclick="window.location.href='/'">Home</button>
+        </form>
+    </div>
+
+    <div class="card d-none cal-fixed-width border-0" id='ccard'>
+        <div class="card-body py-2">
+            <h4 class="text-success fw-bold mb-0" id="cal_card"> </h4>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="cal-card-styled cal-fixed-width" style="padding: 10px; {% if not flag %}visibility:hidden;{% endif %} margin-bottom: 15px;">
+        <h5 class="m-0 fw-bold" style="color: #2c3e50;">Calories in {{serving_size}} {{dishname}} is {{calorie}}kcal</h5>
+    </div>
+
+    <div class="cal-card-styled cal-fixed-width">
+        <h4 class="fw-bold mb-4">Daily Nutrition Tracker</h4>
+        <div class="d-flex justify-content-between mb-2 small fw-bold text-muted">
+            <span>CONSUMED: {{userinfo.calorie_eaten}} kcal</span>
+            <span>GOAL: {{userinfo.calorie_req}} kcal</span>
+        </div>
+        <div class="progress mb-4" style="height: 18px; border-radius: 50px; background: #f1f3f5;">
+            <div class="progress-bar bg-success" role="progressbar" style="width: {{ calorie_width }}%; border-radius: 50px;"></div>
+        </div>
+
+        <form action="{% url 'handle_calorie' %}" method="post">
+            {% csrf_token %}
+            <div class="input-group mb-3">
+                <input type="text" name="dishname" class="form-control py-2" id="dishname" autofocus placeholder="What did you eat today?">
+                <button type="submit" name="sub_btn" value="add_food" class="btn btn-gradient-success px-4">Add Food</button>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" name="sub_btn" value="check_info" class="btn btn-light flex-grow-1" >Check Calorie</button>
+                <button type="button" class="btn btn-light text-danger flex-grow-1" onclick="window.location.href='/'">Home</button>
+            </div>
+        </form>
+    </div>
+
+    {% if food_nutri %}
+    <div class="food-table-container cal-fixed-width">
+        <div class="row food-table-header m-0 text-center">
+            <div class="col-food">Food</div>
+            <div class="col-cal">Calorie</div>
+            <div class="col-serving">Serving</div>
+            <div class="col-qty">Qty</div>
+            <div class="col-action">Action</div>
+        </div>
+        <div class="table-scroll-area">
+            {% for key,val in food_nutri %}
+            <div class="row food-item-row m-0 text-center align-items-center">
+                <div class="col-food fw-bold" style="font-size: 0.85rem;">{{key}}</div>
+                <div class="col-cal text-success fw-bold" style="font-size: 0.85rem;">{{val.calorie}}</div>
+                <div class="col-serving text-muted small">{{val.serving_size}}</div>
+                <div class="col-qty small">{{val.qty}}</div> 
+                <div class="col-action">
+                    <button style="border:none; background:transparent;" onclick="item_delete('{{key}}')">
+                        <img style="width: 18px;" src="{% static 'deletebtn.png' %}" alt="Delete">
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    function calcalorie(event) {
+        event.preventDefault();
+        const weight = parseFloat(document.getElementById('weight').value);
+        const height_cm = parseFloat(document.getElementById('height_cm').value);
+        const age = parseInt(document.getElementById('age').value);
+        const activity_level = document.getElementById('activity_level').value;
+        const goal = document.getElementById('goal').value;
+        const gender = document.getElementById('gender').value;
+        const al = {'Sedentary': 1.2, 'Lightly Active': 1.375, 'Moderately Active': 1.55, 'Very Active': 1.725, 'Super Active': 1.9}
+        
+        let bmr = 0;
+        if (gender == 'Male')
+            bmr = 10 * weight + 6.25 * height_cm - 5 * age + 5
+        else
+            bmr = 10 * weight + 6.25 * height_cm - 5 * age - 161
+
+        let tdee = bmr * al[activity_level];
+
+        if (goal == 'Maintain') tdee = Math.round(tdee)
+        else if (goal == 'Lose Weight') tdee = Math.round(tdee - 500)
+        else tdee = Math.round(tdee + 500)
+        
+        document.getElementById('ccard').classList.remove('d-none');
+        document.getElementById('cal_card').innerText ='Daily Calorie Budget: '+ tdee + ' kcal';
+    }
+
+    function item_delete(key) {
+        let path = location.pathname.replace(/^\/|\/$/g, '');
+        window.location.href=`/DeleteItem/${key}/${path}`;
+    }
+</script>
+{% endblock %}

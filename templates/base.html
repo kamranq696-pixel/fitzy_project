@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Fitzy{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            min-height: 100vh;
+            background: linear-gradient(to right, skyblue, white);
+            margin: 0;
+            padding-top: 6.5vh;
+        }
+
+        #navbar {
+            height: 6.5vh;
+            background-color: #4a4ab0 !important;
+            z-index: 1030;
+        }
+
+        .logo {
+            height: 4vh;
+            width: auto;
+        }
+
+        .menu-toggle-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .menu-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        #login_form, #signup_form {
+            background: white;
+            border: 0.5px solid black;
+            padding: 34px;
+            border-radius: 15px;
+            display: none;
+            z-index: 1100;
+        }
+
+        .form-wrapper {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: 500px;
+            z-index: 1050;
+        }
+
+        .offcan_style {
+            border-radius: 20px 0 0 20px !important;
+            height: auto !important;
+            max-height: 55vh;
+            margin-top: 7vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .offcanvas-header {
+            border-bottom: 1px solid #eee;
+            background-color: #f8f9fa;
+            border-radius: 20px 0 0 0;
+        }
+
+        .off-btn {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            font-weight: 600;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+        
+        .off-btn:hover {
+            transform: translateX(-5px);
+            background-color: #4a4ab0 !important;
+            color: white !important;
+        }
+
+        .off-btn-update { background-color: #f0f4f8; color: #2c3e50; }
+        .off-btn-logout { background-color: #e3f2fd; color: #0d6efd; }
+        .off-btn-delete { background-color: #fff5f5; color: #e53e3e; }
+
+        .messages-wrapper {
+            position: absolute;
+            top: 6.5vh;
+            width: 100%;
+            z-index: 2000;
+            pointer-events: none;
+        }
+
+        .full-width-alert {
+            pointer-events: auto;
+            width: 100%;
+            border-radius: 0;
+            margin-bottom: 0;
+        }
+
+        @media (max-width: 768px) {
+            .offcanvas { width: 80% !important; }
+        }
+    </style>
+    {% block css %}{% endblock %}
+</head>
+
+<body>
+    {% load static %}
+    <nav class="navbar navbar-expand-lg fixed-top shadow-sm" id="navbar">
+        <div class="container-fluid">
+            <div class="d-flex align-items-end">
+                <img class="logo img-fluid me-2" src="{% static 'logo1.png' %}" alt="img" />
+                <h4 class="mb-0 me-1"><b class="text-dark">FITZY</b></h4>
+                <h6 class="mb-0 text-light text-opacity-75 d-none d-md-block" style="font-size: 0.8rem; padding-bottom: 2px;">
+                    <b><i>(Measure.Improve.Repeat)</i></b>
+                </h6>
+            </div>
+
+            <div class="ms-auto" id="login_signup_btn">
+                {% if not user.is_authenticated %}
+                <button type="button" class="btn btn-info btn-sm me-2" id='login_btn' onclick="show_loginform()">Login</button>
+                <button type="button" class="btn btn-info btn-sm" id='signup_btn' onclick="show_signupform()">Signup</button>
+                {% else %}
+                <button class="menu-toggle-btn d-flex align-items-center gap-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight">
+                    <span class="small fw-bold">MENU</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                    </svg>
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="offcanvas offcanvas-end offcan_style" tabindex="-1" id="offcanvasRight">
+        <div class="offcanvas-header">
+            <div class="d-flex align-items-center">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; font-weight: bold;">
+                    {{ user.first_name|first|upper }}
+                </div>
+                <div>
+                    <h6 class="offcanvas-title mb-0"><b>{{ user.first_name }} {{user.last_name}}</b></h6>
+                    <small class="text-muted">{{ user.email }}</small>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body">
+            <label class="text-muted small fw-bold mb-3">MANAGE ACCOUNT</label>
+            <button class="off-btn off-btn-update" onclick="handle_update()">Update Info</button>
+            <button class="off-btn off-btn-logout" onclick="window.location.href='{% url 'handle_logout' %}'">Logout</button>
+            <hr>
+            <button class="off-btn off-btn-delete" onclick="window.location.href='{% url 'delete_account' %}'">Delete My Account</button>
+        </div>
+    </div>
+
+    <div class="messages-wrapper">
+        {% for message in messages %}
+        <div class="alert alert-{% if 'success' in message.tags %}success{% else %}warning{% endif %} full-width-alert fade show text-start px-4" role="alert">
+            <strong>{{message}}</strong>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="form-wrapper">
+        <form method="post" action="{% url 'handle_login' %}" class="text-center" id="login_form">
+            {% csrf_token %}
+            <img class="logo mb-2" src="{% static 'logo1.png' %}" alt="img" />
+            <p class="fs-4"><i><b>Welcome Back</b></i></p>
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" name="email" id="login_email" placeholder="name@example.com" required />
+                <label>Email address</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" name="password" id="login_pass" placeholder="Password" required>
+                <label>Password</label>
+            </div>
+            <button type="submit" class="btn btn-success mt-2">Login</button>
+            <button type="button" class="btn btn-dark mt-2" onclick="close_login_form()">Exit</button>
+        </form>
+
+        <form method="post" action="{% url 'handle_signup' %}" class="text-center" id="signup_form">
+            {% csrf_token %}
+            <img class="logo mb-2" src="{% static 'logo1.png' %}" alt="img" />
+            <p class="fs-4"><i><b>Welcome To Fitzy</b></i></p>
+            <div class="form-floating mb-2">
+                <input type="text" pattern="[A-Za-z]*" class="form-control" name="f_name" id="f_name" placeholder="FirstName" required />
+                <label>FirstName</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="text" pattern="[A-Za-z]*" class="form-control" name="l_name" id="l_name" placeholder="LastName" required />
+                <label>LastName</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="email" class="form-control" name="email1" placeholder="Email" id="signup_email" required />
+                <label>Email address</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="password" class="form-control" name="pass1" placeholder="Password" id="signup_pass" required>
+                <label>Password</label>
+            </div>
+            <div class="form-floating mb-2">
+                <input type="password" class="form-control" name="pass2" placeholder="Confirm Password" id="signup_cpass" required>
+                <label>Confirm Password</label>
+            </div>
+            <button type="submit" class="btn btn-success mt-2">Signup</button>
+            <button type="button" class="btn btn-dark mt-2" onclick="close_signup_form()">Exit</button>
+        </form>
+    </div>
+
+    <div id="below_nav">
+        {% block body %} {% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const navbar = document.getElementById('navbar');
+        const below_nav = document.getElementById('below_nav');
+
+        function disableUIAndBlur() {
+            if (navbar) navbar.style.filter = 'blur(3px)';
+            if (below_nav) {
+                below_nav.style.pointerEvents='none';
+                below_nav.style.filter = 'blur(3px)';
+            }
+        }
+
+        function enableUIAndUnblur() {
+            if (navbar) navbar.style.filter = 'none';
+            if (below_nav) {
+                below_nav.style.pointerEvents='auto';
+                below_nav.style.filter = 'none';
+            }
+        }
+
+        function show_loginform() { 
+            document.getElementById('login_form').style.display = 'block'; 
+            email=document.getElementById('login_email')
+            password=document.getElementById('login_pass')
+
+            if(email)
+            {
+                email.value=""
+            } 
+
+            if(password)
+            {
+                password.value=""
+            }
+
+            disableUIAndBlur(); 
+        }
+        function close_login_form() { 
+            document.getElementById('login_form').style.display = 'none';
+            enableUIAndUnblur();
+        }
+        function show_signupform() {
+            document.getElementById('signup_form').style.display = 'block'; 
+            disableUIAndBlur();
+
+            firstname=document.getElementById('f_name')
+            lastname=document.getElementById('l_name')
+            email=document.getElementById('signup_email')
+            password=document.getElementById('signup_pass')
+            c_password=document.getElementById('signup_cpass')
+
+            if(firstname)
+            {
+              firstname.value="";
+            }
+
+            if(lastname)
+            {
+              lastname.value="";
+            }
+
+            if(email)
+            {
+              email.value="";
+            }
+
+            if(password)
+            {
+              password.value="";
+            }
+
+            if(c_password)
+            {
+               c_password.value="";
+            }
+             
+        }
+        function close_signup_form() { 
+            document.getElementById('signup_form').style.display = 'none'; 
+            enableUIAndUnblur();
+        }
+
+        function handle_update() {
+            let path = location.pathname.replace(/^\/|\/$/g, '') || 'home';
+            window.location.href = `/updateInfo/${path}`;
+        }
+
+        setTimeout(() => {
+            let alert = document.querySelector('.alert')
+            if (alert) {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 1000);
+            }
+        }, 3000);
+    </script>
+    {% block js %} {% endblock %}
+</body>
+</html>

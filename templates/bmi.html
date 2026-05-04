@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block css %}
+<style>
+    .intro-banner {
+        width: 100%;
+        overflow: hidden;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        height: 40px;
+        position: relative;
+    }
+
+    .marquee-wrapper {
+        display: flex;
+        width: max-content;
+        animation: marquee-infinite 20s linear infinite;
+    }
+
+    .marquee-wrapper p {
+        display: inline-block;
+        margin: 0;
+        padding-right: 80px;
+        font-size: 0.95rem;
+        color: #444;
+    }
+
+    @keyframes marquee-infinite {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+
+    .content-wrapper {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 30px;
+        max-width: 1000px;
+        margin: 80px auto 40px;
+        align-items: stretch;
+    }
+
+    .box-container {
+        width: 320px;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .section-title {
+        font-weight: bold;
+        margin-bottom: 15px;
+        font-size: 1.1rem;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 8px;
+    }
+
+    .form-control {
+        margin-bottom: 10px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+
+    .table-sm {
+        font-size: 0.85rem;
+        margin-bottom: 0;
+        flex-grow: 1;
+    }
+
+    #bcard {
+        margin-top: 15px;
+        padding: 10px;
+        border: 1px solid #198754;
+        background: #f4fff4;
+        text-align: center;
+        font-size: 1rem;
+        border-radius: 5px;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+        .content-wrapper {
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="intro-banner">
+    <div class="marquee-wrapper">
+        <p>
+            <strong>&bull;Body Mass Index (BMI)</strong> estimates body fat based on height and weight.
+            While helpful, it doesn't account for muscle mass or age. Consult a professional for a complete evaluation.
+        </p>
+        <p>
+            <strong>&bull;Body Mass Index (BMI)</strong> estimates body fat based on height and weight.
+            While helpful, it doesn't account for muscle mass or age. Consult a professional for a complete evaluation.
+        </p>
+    </div>
+</div>
+
+<div class="content-wrapper" id="cw">
+    <div class="box-container">
+        <div class="section-title text-center">BMI Calculator</div>
+        <form action="{% url 'handle_bmi' %}" method="post" id="bmi_form">
+            {% csrf_token %}
+            <div class="mb-2">
+                <label class="small fw-bold">Weight (kg)</label>
+                <input type="number" class="form-control" name="weight" value="{{userinfo.weight}}" placeholder="e.g. 70" required>
+            </div>
+            <div class="mb-3">
+                <label class="small fw-bold">Height (meters)</label>
+                <input type="number" class="form-control" name="height_m" value="{{userinfo.h1}}" placeholder="e.g. 1.75" step="any" required>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-success btn-sm"> 
+                    {% if user.is_authenticated %} Update {% else %} Calculate {% endif %} 
+                </button>
+                <button type="button" class="btn btn-dark btn-sm" onclick="window.location.href='/'">Home</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="box-container">
+        <div class="section-title text-center">BMI Scale</div>
+        <table class="table table-bordered table-sm text-center">
+            <thead class="table-dark">
+                <tr>
+                    <th>BMI</th>
+                    <th>Category</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>&lt; 18.5</td><td>Underweight</td></tr>
+                <tr><td>18.5–24.9</td><td>Normal</td></tr>
+                <tr><td>25–29.9</td><td>Overweight</td></tr>
+                <tr><td>30–34.9</td><td>Obese I</td></tr>
+                <tr><td>35–39.9</td><td>Obese II</td></tr>
+                <tr><td>&ge; 40</td><td>Obese III</td></tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+
+
+<div class="{% if not user.is_authenticated and not rem_class %}d-none{% endif %} content-wrapper justify-content-center" id="bcard" style="max-width: 945px;">
+    Your body mass index (BMI): &nbsp; <b id="bmi_card">
+        {% if user.is_authenticated %} {{userinfo.bmi_req}} {% else %} {{calculated_bmi}} {% endif %}
+    </b>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+</script>
+{% endblock %}
